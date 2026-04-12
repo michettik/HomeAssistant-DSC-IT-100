@@ -4,26 +4,6 @@
 
 Home Assistant integration for Hubitat Alarm - connects to DSC and Honeywell alarm systems via the HubitatAlarm Docker container.
 
-## Credits & Attribution
-
-This integration is built on **Victor Santana's** (@Welasco) [HubitatAlarm](https://github.com/Welasco/HubitatAlarm) project. Victor's Docker container does all the heavy lifting - handling DSC IT-100 serial communication and providing a clean WebSocket/API interface. This integration is simply a Home Assistant client that connects to his server.
-
-**Original Project:**
-- Repository: https://github.com/Welasco/HubitatAlarm
-- Author: Victor Santana (@Welasco)
-- What it does: Connects DSC/Honeywell alarm panels to Hubitat (and now Home Assistant!)
-
-**What this integration adds:**
-- Home Assistant native entities (alarm panel + zone sensors)
-- WebSocket client that talks to Victor's container
-- HACS installation support
-
-**What you still need:**
-- Victor's HubitatAlarm Docker container running on your network
-- DSC IT-100 or Envisalink module connected to your alarm panel
-
-All the protocol implementation, serial communication, and Docker magic is Victor's work. This is just the Home Assistant integration piece.
-
 ## Features
 
 - 🔐 **Alarm Control Panel** - Arm/Disarm in Away, Home, and Night modes
@@ -39,13 +19,6 @@ You need the [HubitatAlarm Docker container](https://github.com/Welasco/HubitatA
 - DSC IT-100 (Serial/USB)
 - Envisalink (Network)
 
-**Tested Configuration:**
-- DSC IT-100 connected via Serial/USB to Raspberry Pi
-- HubitatAlarm Docker container running on the same Pi
-- Home Assistant connecting to the container over the local network
-
-_Note: While the HubitatAlarm container supports Envisalink, this integration has only been tested with DSC IT-100. Envisalink should work but is untested._
-
 ## Installation
 
 ### HACS (Recommended)
@@ -53,7 +26,7 @@ _Note: While the HubitatAlarm container supports Envisalink, this integration ha
 1. Open HACS in Home Assistant
 2. Click the three dots in the top right corner
 3. Select "Custom repositories"
-4. Add this repository URL: `https://github.com/michettik/HomeAssistant-DSC-IT-100`
+4. Add this repository URL: `https://github.com/yourusername/hubitat_alarm_hacs`
 5. Select category: "Integration"
 6. Click "Add"
 7. Click "Install" on the Hubitat Alarm card
@@ -72,50 +45,31 @@ _Note: While the HubitatAlarm container supports Envisalink, this integration ha
 4. Enter your configuration:
    - **Host**: IP address of your Docker container (e.g., `192.168.1.100`)
    - **Port**: Port number (default: `3000`)
-   - **Alarm Security Code**: Your alarm panel code
+   - **~~Alarm Security Code~~**: ~~Your alarm panel code~~ (See Docker Container Setup below for manual configuration)
    - **Connection Type**: Choose `wss` (WebSocket - recommended) or `api`
    - **Alarm Type**: Choose `DSC` or `Honeywell`
    - **Number of Zones**: How many zones to create (1-64)
 
 ## Docker Container Setup
 
-### Step 1: Start the Docker Container
+Make sure you have the HubitatAlarm Docker container running:
 
 ```bash
 # For DSC IT-100
 docker run --name=hubitatalarm -d -p 3000:3000 \
   -v /path/to/config:/opt/Alarm/config \
   --device=/dev/ttyUSB0 \
-  -e TZ=America/Edmonton \
+  -e TZ=America/Chicago \
   --restart always \
   welasco/hubitatalarm:latest
 
 # For Envisalink
 docker run --name=hubitatalarm -d -p 3000:3000 \
   -v /path/to/config:/opt/Alarm/config \
-  -e TZ=America/Edmonton \
+  -e TZ=America/Chicago \
   --restart always \
   welasco/hubitatalarm:latest
 ```
-
-
-### Step 2: Configure Alarm Code and Type
-
-After the container starts, configure it for your alarm system:
-
-```bash
-# Replace YOUR_ALARM_CODE with your actual 4-digit alarm code (e.g., 1234)
-docker exec hubitatalarm sed -i 's/"alarmpassword": "1234"/"alarmpassword": "YOUR_ALARM_CODE"/' /opt/Alarm/config/config.json
-
-# For DSC IT-100 users: Set alarm type to DSC
-docker exec hubitatalarm sed -i 's/"alarmType": "Honeywell"/"alarmType": "DSC"/' /opt/Alarm/config/config.json
-docker exec hubitatalarm sed -i 's/"connectionType": "Envisalink"/"connectionType": "DSC-IT100"/' /opt/Alarm/config/config.json
-
-# Restart container to apply changes
-docker restart hubitatalarm
-```
-
-**Note for Envisalink users:** The default configuration is already set for Honeywell/Envisalink, so you only need to update the alarm code (first command above).
 
 ## Entities Created
 
@@ -210,54 +164,10 @@ logger:
 - [GitHub Issues](https://github.com/yourusername/hubitat_alarm_hacs/issues)
 - [HubitatAlarm Docker Container](https://github.com/Welasco/HubitatAlarm)
 
-## Acknowledgments
+## Credits
 
-Huge thanks to **Victor Santana** (@Welasco) for creating and maintaining the HubitatAlarm project. Without his work on the alarm panel protocols, Docker container, and server implementation, this Home Assistant integration would not be possible.
-
-If you find this integration useful, please:
-- ⭐ Star the original [HubitatAlarm repository](https://github.com/Welasco/HubitatAlarm)
-- Support Victor's work
-- Consider contributing to the Docker container project
-
-## Related Projects
-
-- [HubitatAlarm](https://github.com/Welasco/HubitatAlarm) - The original project and required Docker container
-- [Hubitat Elevation](https://hubitat.com/) - The original target platform
+Based on the [HubitatAlarm](https://github.com/Welasco/HubitatAlarm) project by Victor Santana.
 
 ## License
 
 MIT License
-
-**Note:** This integration is independent community software. The HubitatAlarm Docker container and its protocols are the work of Victor Santana and subject to their original licensing.
-
-## Important: Alarm Code Configuration
-
-**Critical Setup Step:** The HubitatAlarm Docker container stores the alarm code in its internal `config.json` file. This code is used for all arm/disarm operations. See the [Docker Container Setup](#docker-container-setup) section above for configuration commands.
-
-### Why This is Necessary
-
-The Docker container's architecture reads the alarm code from its persistent configuration file rather than accepting it dynamically via WebSocket messages. The original Hubitat implementation automatically POSTs the alarm code to the Docker's `/config` endpoint on setup, and this Home Assistant integration attempts to do the same via `async_sync_alarm_config()`. However, this automatic sync may fail silently in some configurations, requiring manual setup.
-
-### Security Considerations
-
-⚠️ **Important Security Note:** The alarm code is stored in plaintext in the Docker container's `config.json` file. This is a potential security vulnerability if the Docker host is compromised.
-
-**Recommended mitigations:**
-- Run the Docker container on an isolated VLAN that isn't exposed to the internet
-- Restrict network access to the Docker host using firewall rules
-- Use strong access controls on the Docker host system
-- Regularly audit access to the configuration file
-
-**Future improvements:** We plan to enhance the integration to match the original Hubitat behavior where the alarm code is automatically synced from Home Assistant to the Docker container on initial setup and configuration changes. This won't eliminate the plaintext storage issue but will reduce manual configuration steps.
-
-### Troubleshooting
-
-**Symptoms of incorrect alarm code:**
-- Arm commands work, but disarm fails
-- Docker logs show "Invalid code" error (code 670)
-- Panel remains armed after clicking disarm in Home Assistant
-
-**To verify your configuration:**
-```bash
-docker exec hubitatalarm cat /opt/Alarm/config/config.json | grep alarmpassword
-```
