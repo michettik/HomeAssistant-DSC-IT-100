@@ -71,10 +71,10 @@ class HubitatAlarmPanel(AlarmControlPanelEntity):
         self._attr_unique_id = f"{entry.entry_id}_alarm_panel"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, entry.entry_id)},
-            "name": "Hubitat Alarm Panel",
-            "manufacturer": "Hubitat Alarm",
-            "model": entry.data.get("alarm_type", "Unknown"),
-            "sw_version": "1.0",
+            "name": "DSC Alarm Panel",
+            "manufacturer": "HomeAssistant-DSC-IT-100",
+            "model": entry.data.get("alarm_type", "DSC IT-100"),
+            "sw_version": "1.0.2",
         }
 
     async def async_added_to_hass(self) -> None:

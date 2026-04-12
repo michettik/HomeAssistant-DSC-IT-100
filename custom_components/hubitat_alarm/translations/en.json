@@ -2,8 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "Configure Hubitat Alarm",
-        "description": "Enter the connection details for your Hubitat Alarm Docker container running on your Raspberry Pi or server.",
+        "title": "Configure DSC IT-100 Alarm",
+        "description": "Enter the connection details for your DSC IT-100 alarm server (Hubitat Alarm fork) running in Docker.",
         "data": {
           "host": "Host (IP Address)",
           "port": "Port",
@@ -15,17 +15,17 @@
       }
     },
     "error": {
-      "cannot_connect": "Failed to connect to Hubitat Alarm server. Please check the host and port.",
+      "cannot_connect": "Failed to connect to DSC IT-100 server. Please check the host and port.",
       "unknown": "Unexpected error occurred"
     },
     "abort": {
-      "already_configured": "This Hubitat Alarm server is already configured"
+      "already_configured": "This DSC IT-100 server is already configured"
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Hubitat Alarm Options",
+        "title": "DSC IT-100 Alarm Options",
         "data": {
           "num_zones": "Number of Zones"
         }

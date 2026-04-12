@@ -1,6 +1,6 @@
 {
   "domain": "hubitat_alarm",
-  "name": "Hubitat Alarm",
+  "name": "HomeAssistant-DSC-IT-100 (Hubitat Alarm Fork)",
   "codeowners": ["@michettik"],
   "config_flow": true,
   "dependencies": [],
@@ -8,5 +8,5 @@
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/michettik/HomeAssistant-DSC-IT-100/issues",
   "requirements": [],
-  "version": "1.0.1"
+  "version": "1.0.2"
 }
