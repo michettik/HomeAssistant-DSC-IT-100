@@ -79,7 +79,7 @@ _Note: While the HubitatAlarm container supports Envisalink, this integration ha
 
 ## Docker Container Setup
 
-Make sure you have the HubitatAlarm Docker container running:
+### Step 1: Start the Docker Container
 
 ```bash
 # For DSC IT-100
@@ -97,6 +97,25 @@ docker run --name=hubitatalarm -d -p 3000:3000 \
   --restart always \
   welasco/hubitatalarm:latest
 ```
+
+
+### Step 2: Configure Alarm Code and Type
+
+After the container starts, configure it for your alarm system:
+
+```bash
+# Replace YOUR_ALARM_CODE with your actual 4-digit alarm code (e.g., 1234)
+docker exec hubitatalarm sed -i 's/"alarmpassword": "1234"/"alarmpassword": "YOUR_ALARM_CODE"/' /opt/Alarm/config/config.json
+
+# For DSC IT-100 users: Set alarm type to DSC
+docker exec hubitatalarm sed -i 's/"alarmType": "Honeywell"/"alarmType": "DSC"/' /opt/Alarm/config/config.json
+docker exec hubitatalarm sed -i 's/"connectionType": "Envisalink"/"connectionType": "DSC-IT100"/' /opt/Alarm/config/config.json
+
+# Restart container to apply changes
+docker restart hubitatalarm
+```
+
+**Note for Envisalink users:** The default configuration is already set for Honeywell/Envisalink, so you only need to update the alarm code (first command above).
 
 ## Entities Created
 
