@@ -105,8 +105,11 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
                             }
                         }
                 
-                # Update only the alarm password
+                # Update alarm password and ensure correct alarm type
                 current_config["alarmpassword"] = self.alarm_code
+                current_config["alarmType"] = "DSC"
+                current_config["connectionType"] = "DSC-IT100"
+                current_config["communicationType"] = "WSS"
                 
                 # POST the updated config back
                 async with session.post(config_url, json=current_config) as response:
