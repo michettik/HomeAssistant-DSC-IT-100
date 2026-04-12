@@ -53,7 +53,7 @@ _Note: While the HubitatAlarm container supports Envisalink, this integration ha
 1. Open HACS in Home Assistant
 2. Click the three dots in the top right corner
 3. Select "Custom repositories"
-4. Add this repository URL: `https://github.com/yourusername/hubitat_alarm_hacs`
+4. Add this repository URL: `https://github.com/michettik/HomeAssistant-DSC-IT-100`
 5. Select category: "Integration"
 6. Click "Add"
 7. Click "Install" on the Hubitat Alarm card
