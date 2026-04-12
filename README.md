@@ -86,14 +86,14 @@ Make sure you have the HubitatAlarm Docker container running:
 docker run --name=hubitatalarm -d -p 3000:3000 \
   -v /path/to/config:/opt/Alarm/config \
   --device=/dev/ttyUSB0 \
-  -e TZ=America/Chicago \
+  -e TZ=America/Edmonton \
   --restart always \
   welasco/hubitatalarm:latest
 
 # For Envisalink
 docker run --name=hubitatalarm -d -p 3000:3000 \
   -v /path/to/config:/opt/Alarm/config \
-  -e TZ=America/Chicago \
+  -e TZ=America/Edmonton \
   --restart always \
   welasco/hubitatalarm:latest
 ```
