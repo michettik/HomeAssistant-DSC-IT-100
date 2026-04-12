@@ -72,21 +72,46 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
 
     async def async_sync_alarm_config(self) -> None:
         """Sync alarm configuration to Docker container."""
-        url = f"http://{self.host}:{self.port}/config"
-        
-        config_data = {
-            "alarmpassword": self.alarm_code,
-            "SHM": True,
-            "alarmType": "DSC",
-            "connectionType": "DSC-IT100",
-            "communicationType": "WSS"
-        }
+        config_url = f"http://{self.host}:{self.port}/config"
         
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.post(url, json={"alarm": config_data}) as response:
+                # First, GET the current config
+                async with session.get(config_url) as response:
                     if response.status == 200:
-                        _LOGGER.info("Successfully synced alarm code to Docker container")
+                        current_config = await response.json()
+                        _LOGGER.debug("Retrieved current config from Docker")
+                    else:
+                        _LOGGER.warning("Failed to get current config: HTTP %s, will use defaults", response.status)
+                        # Use default config structure
+                        current_config = {
+                            "alarmpassword": self.alarm_code,
+                            "SHM": True,
+                            "dsc_it100": {
+                                "linuxSerialUSBtty": "/dev/ttyUSB0",
+                                "baudRate": 9600
+                            },
+                            "envisalink": {
+                                "ip": "",
+                                "port": "",
+                                "password": ""
+                            },
+                            "alarmType": "DSC",
+                            "connectionType": "DSC-IT100",
+                            "communicationType": "WSS",
+                            "panelConfig": {
+                                "type": "discover",
+                                "zones": []
+                            }
+                        }
+                
+                # Update only the alarm password
+                current_config["alarmpassword"] = self.alarm_code
+                
+                # POST the updated config back
+                async with session.post(config_url, json=current_config) as response:
+                    if response.status == 200:
+                        _LOGGER.info("Successfully synced alarm code (%s) to Docker container", self.alarm_code)
                     else:
                         _LOGGER.warning("Failed to sync alarm config: HTTP %s", response.status)
         except Exception as err:
