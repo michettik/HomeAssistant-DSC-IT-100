@@ -90,9 +90,11 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
 
     async def _async_listen_websocket(self) -> None:
         """Listen for WebSocket messages."""
+        _LOGGER.info("WebSocket listener started")
         try:
             async for message in self.websocket:
                 try:
+                    _LOGGER.info("Received WebSocket message: %s", message)
                     data = json.loads(message)
                     await self._async_handle_message(data)
                 except json.JSONDecodeError as err:
@@ -149,12 +151,13 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
     async def _async_handle_message(self, data: dict[str, Any]) -> None:
         """Handle incoming message from alarm system."""
         event_type = data.get("type")
+        _LOGGER.info("Handling message - type: %s, data: %s", event_type, data)
         
         if event_type == EVENT_TYPE_PARTITION:
             # Update partition state
             partition = data.get("partition", "1")
             self.partition_data[partition] = data
-            _LOGGER.debug("Partition %s update: %s", partition, data)
+            _LOGGER.info("Updated partition %s state: %s", partition, data)
             
         elif event_type == EVENT_TYPE_ZONE:
             # Update zone state
@@ -164,6 +167,7 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
                 _LOGGER.debug("Zone %s update: %s", zone, data)
         
         # Notify all listeners
+        _LOGGER.info("Notifying listeners of update")
         self.async_set_updated_data(data)
 
     async def async_send_command(self, command: str) -> None:
