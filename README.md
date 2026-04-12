@@ -39,6 +39,13 @@ You need the [HubitatAlarm Docker container](https://github.com/Welasco/HubitatA
 - DSC IT-100 (Serial/USB)
 - Envisalink (Network)
 
+**Tested Configuration:**
+- DSC IT-100 connected via Serial/USB to Raspberry Pi
+- HubitatAlarm Docker container running on the same Pi
+- Home Assistant connecting to the container over the local network
+
+_Note: While the HubitatAlarm container supports Envisalink, this integration has only been tested with DSC IT-100. Envisalink should work but is untested._
+
 ## Installation
 
 ### HACS (Recommended)
