@@ -123,15 +123,21 @@ class HubitatAlarmPanel(AlarmControlPanelEntity):
 
     async def async_alarm_disarm(self, code: str | None = None) -> None:
         """Send disarm command."""
+        _LOGGER.info("Disarm button clicked - sending command: %s", CMD_DISARM)
         await self.coordinator.async_send_command(CMD_DISARM)
+        _LOGGER.info("Disarm command sent")
 
     async def async_alarm_arm_home(self, code: str | None = None) -> None:
         """Send arm home command."""
+        _LOGGER.info("Arm Home button clicked - sending command: %s", CMD_ARM_STAY)
         await self.coordinator.async_send_command(CMD_ARM_STAY)
+        _LOGGER.info("Arm Home command sent")
 
     async def async_alarm_arm_away(self, code: str | None = None) -> None:
         """Send arm away command."""
+        _LOGGER.info("Arm Away button clicked - sending command: %s", CMD_ARM_AWAY)
         await self.coordinator.async_send_command(CMD_ARM_AWAY)
+        _LOGGER.info("Arm Away command sent")
 
     async def async_alarm_arm_night(self, code: str | None = None) -> None:
         """Send arm night command."""
