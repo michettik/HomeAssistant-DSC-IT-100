@@ -207,7 +207,9 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
                         _LOGGER.error("API command failed with status %s", response.status)
                     _LOGGER.debug("Sent command via API: %s", url)
         except Exception as err:
-            _LOGGER.error("Failed to send API command: %s", err)    def get_partition_state(self, partition: str = "1") -> dict[str, Any] | None:
+            _LOGGER.error("Failed to send API command: %s", err)
+
+    def get_partition_state(self, partition: str = "1") -> dict[str, Any] | None:
         """Get current state of a partition."""
         return self.partition_data.get(partition)
 
