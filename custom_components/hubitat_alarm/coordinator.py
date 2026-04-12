@@ -170,20 +170,23 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
         _LOGGER.info("Notifying listeners of update")
         self.async_set_updated_data(data)
 
-    async def async_send_command(self, command: str) -> None:
+    async def async_send_command(self, command: str, code: str | None = None) -> None:
         """Send command to alarm system."""
         if self.connection_type == CONNECTION_WSS:
-            await self._async_send_command_websocket(command)
+            await self._async_send_command_websocket(command, code)
         else:
-            await self._async_send_command_api(command)
+            await self._async_send_command_api(command, code)
 
-    async def _async_send_command_websocket(self, command: str) -> None:
+    async def _async_send_command_websocket(self, command: str, code: str | None = None) -> None:
         """Send command via WebSocket."""
         if not self.websocket:
             _LOGGER.error("WebSocket not connected")
             return
         
-        message = json.dumps({"command": command})
+        message_data = {"command": command}
+        if code is not None:
+            message_data["code"] = code
+        message = json.dumps(message_data)
         try:
             await self.websocket.send(message)
             _LOGGER.info("Sent command via WebSocket: %s (message: %s)", command, message)
@@ -191,20 +194,20 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
             _LOGGER.error("Failed to send WebSocket command: %s", err)
             self._schedule_reconnect()
 
-    async def _async_send_command_api(self, command: str) -> None:
+    async def _async_send_command_api(self, command: str, code: str | None = None) -> None:
         """Send command via API."""
         url = f"http://{self.host}:{self.port}/api/{command}"
+        if code is not None:
+            url += f"?code={code}"
         
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as response:
                     if response.status != 200:
                         _LOGGER.error("API command failed with status %s", response.status)
-            _LOGGER.debug("Sent command via API: %s", command)
+                    _LOGGER.debug("Sent command via API: %s", url)
         except Exception as err:
-            _LOGGER.error("Failed to send API command: %s", err)
-
-    def get_partition_state(self, partition: str = "1") -> dict[str, Any] | None:
+            _LOGGER.error("Failed to send API command: %s", err)    def get_partition_state(self, partition: str = "1") -> dict[str, Any] | None:
         """Get current state of a partition."""
         return self.partition_data.get(partition)
 

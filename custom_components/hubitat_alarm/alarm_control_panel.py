@@ -123,22 +123,28 @@ class HubitatAlarmPanel(AlarmControlPanelEntity):
 
     async def async_alarm_disarm(self, code: str | None = None) -> None:
         """Send disarm command."""
-        _LOGGER.info("Disarm button clicked - sending command: %s", CMD_DISARM)
-        await self.coordinator.async_send_command(CMD_DISARM)
-        _LOGGER.info("Disarm command sent")
+        _LOGGER.info("Disarm button clicked - sending command: %s with code", CMD_DISARM)
+        alarm_code = code or self._alarm_code
+        await self.coordinator.async_send_command(CMD_DISARM, code=alarm_code)
+        _LOGGER.info("Disarm command sent with code: %s", alarm_code)
 
     async def async_alarm_arm_home(self, code: str | None = None) -> None:
         """Send arm home command."""
-        _LOGGER.info("Arm Home button clicked - sending command: %s", CMD_ARM_STAY)
-        await self.coordinator.async_send_command(CMD_ARM_STAY)
-        _LOGGER.info("Arm Home command sent")
+        _LOGGER.info("Arm Home button clicked - sending command: %s with code", CMD_ARM_STAY)
+        alarm_code = code or self._alarm_code
+        await self.coordinator.async_send_command(CMD_ARM_STAY, code=alarm_code)
+        _LOGGER.info("Arm Home command sent with code: %s", alarm_code)
 
     async def async_alarm_arm_away(self, code: str | None = None) -> None:
         """Send arm away command."""
-        _LOGGER.info("Arm Away button clicked - sending command: %s", CMD_ARM_AWAY)
-        await self.coordinator.async_send_command(CMD_ARM_AWAY)
-        _LOGGER.info("Arm Away command sent")
+        _LOGGER.info("Arm Away button clicked - sending command: %s with code", CMD_ARM_AWAY)
+        alarm_code = code or self._alarm_code
+        await self.coordinator.async_send_command(CMD_ARM_AWAY, code=alarm_code)
+        _LOGGER.info("Arm Away command sent with code: %s", alarm_code)
 
     async def async_alarm_arm_night(self, code: str | None = None) -> None:
         """Send arm night command."""
-        await self.coordinator.async_send_command(CMD_ARM_NIGHT)
+        _LOGGER.info("Arm Night button clicked - sending command: %s with code", CMD_ARM_NIGHT)
+        alarm_code = code or self._alarm_code
+        await self.coordinator.async_send_command(CMD_ARM_NIGHT, code=alarm_code)
+        _LOGGER.info("Arm Night command sent with code: %s", alarm_code)
