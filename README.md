@@ -6,24 +6,39 @@ Home Assistant integration for Hubitat Alarm - connects to DSC and Honeywell ala
 
 ## Credits & Attribution
 
-This integration is a Home Assistant port/adaptation of the [HubitatAlarm](https://github.com/Welasco/HubitatAlarm) project by **Victor Santana** (@Welasco).
+### 🙏 Built on the Shoulders of Giants
+
+This integration would not exist without the exceptional work of **Victor Santana** (@Welasco) and his [HubitatAlarm](https://github.com/Welasco/HubitatAlarm) project.
+
+**Victor's HubitatAlarm provides:**
+- Complete DSC IT-100 and Envisalink protocol implementations
+- Rock-solid serial communication handling
+- Docker containerization for easy deployment
+- WebSocket/API server that this integration connects to
+- Years of real-world testing and refinement
 
 **Original Project:**
 - Repository: https://github.com/Welasco/HubitatAlarm
-- Author: Victor Santana
-- License: Original project license applies to the Docker container and protocol implementation
+- Author: Victor Santana (@Welasco)
+- Purpose: Connect DSC/Honeywell alarm panels to Hubitat home automation
 
-This HACS integration provides a Home Assistant-native interface to connect to the existing HubitatAlarm Docker container, which handles all communication with DSC and Honeywell alarm panels. All credit for the alarm protocol implementation, Docker container, and original architecture goes to Victor Santana.
+### 🔧 What This Integration Does
 
-**What this integration does:**
-- Provides Home Assistant entities (alarm panel + zone sensors)
-- Implements WebSocket/API client to communicate with HubitatAlarm Docker container
-- Translates between HubitatAlarm protocol and Home Assistant entity states
+This project is a **client** for Victor's server:
+- ✅ Provides Home Assistant entities (alarm panel + zone sensors)
+- ✅ Implements WebSocket/API client to communicate with HubitatAlarm Docker container
+- ✅ Translates between HubitatAlarm protocol and Home Assistant entity states
+- ✅ Enables HACS installation for easy management
 
-**What this integration does NOT do:**
-- Does not replace or modify the HubitatAlarm Docker container
-- Does not implement alarm panel protocols (that's all in Victor's original work)
-- Requires the original HubitatAlarm Docker container to function
+### 🚫 What This Integration Does NOT Do
+
+All the hard work is done by Victor's container:
+- ❌ Does not replace or modify the HubitatAlarm Docker container
+- ❌ Does not implement alarm panel protocols (that's all Victor's genius)
+- ❌ Does not handle serial/USB communication (Victor's container does this)
+- ⚠️ **Requires** the original HubitatAlarm Docker container to function
+
+**Thank you, Victor, for creating such a robust and well-designed system!** 🎉
 
 ## Features
 
