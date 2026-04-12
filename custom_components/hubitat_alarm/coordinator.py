@@ -174,7 +174,7 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
             await self._async_send_command_api(command)
 
     async def _async_send_command_websocket(self, command: str) -> None:
-        """Send command via WebSocket.""
+        """Send command via WebSocket."""
         if not self.websocket or self.websocket.closed:
             _LOGGER.error("WebSocket not connected")
             return
