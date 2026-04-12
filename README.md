@@ -238,7 +238,21 @@ docker restart hubitatalarm
 
 ### Why This is Necessary
 
-The Docker container's architecture reads the alarm code from its persistent configuration file rather than accepting it dynamically via WebSocket messages. While Home Assistant stores your alarm code in its configuration, you must also configure it in the Docker container for arm/disarm operations to work correctly.
+The Docker container's architecture reads the alarm code from its persistent configuration file rather than accepting it dynamically via WebSocket messages. The original Hubitat implementation automatically POSTs the alarm code to the Docker's `/config` endpoint on setup, and this Home Assistant integration attempts to do the same via `async_sync_alarm_config()`. However, this automatic sync may fail silently in some configurations, requiring manual setup.
+
+### Security Considerations
+
+⚠️ **Important Security Note:** The alarm code is stored in plaintext in the Docker container's `config.json` file. This is a potential security vulnerability if the Docker host is compromised.
+
+**Recommended mitigations:**
+- Run the Docker container on an isolated VLAN that isn't exposed to the internet
+- Restrict network access to the Docker host using firewall rules
+- Use strong access controls on the Docker host system
+- Regularly audit access to the configuration file
+
+**Future improvements:** We plan to enhance the integration to match the original Hubitat behavior where the alarm code is automatically synced from Home Assistant to the Docker container on initial setup and configuration changes. This won't eliminate the plaintext storage issue but will reduce manual configuration steps.
+
+### Troubleshooting
 
 **Symptoms of incorrect alarm code:**
 - Arm commands work, but disarm fails
