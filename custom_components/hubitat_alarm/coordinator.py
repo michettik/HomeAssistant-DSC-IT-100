@@ -61,11 +61,36 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
 
     async def async_connect(self) -> None:
         """Connect to the Hubitat Alarm server."""
+        # Sync alarm code to Docker container
+        await self.async_sync_alarm_config()
+        
         if self.connection_type == CONNECTION_WSS:
             await self._async_connect_websocket()
         else:
             # API mode - just verify connection
             await self._async_verify_api_connection()
+
+    async def async_sync_alarm_config(self) -> None:
+        """Sync alarm configuration to Docker container."""
+        url = f"http://{self.host}:{self.port}/config"
+        
+        config_data = {
+            "alarmpassword": self.alarm_code,
+            "SHM": True,
+            "alarmType": "DSC",
+            "connectionType": "DSC-IT100",
+            "communicationType": "WSS"
+        }
+        
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, json={"alarm": config_data}) as response:
+                    if response.status == 200:
+                        _LOGGER.info("Successfully synced alarm code to Docker container")
+                    else:
+                        _LOGGER.warning("Failed to sync alarm config: HTTP %s", response.status)
+        except Exception as err:
+            _LOGGER.error("Failed to sync alarm config to Docker: %s", err)
 
     async def _async_connect_websocket(self) -> None:
         """Connect via WebSocket."""
