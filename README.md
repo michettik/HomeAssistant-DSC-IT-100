@@ -210,3 +210,42 @@ If you find this integration useful, please:
 MIT License
 
 **Note:** This integration is independent community software. The HubitatAlarm Docker container and its protocols are the work of Victor Santana and subject to their original licensing.
+
+## Important: Alarm Code Configuration
+
+**Critical Setup Step:** The HubitatAlarm Docker container stores the alarm code in its internal `config.json` file. This code is used for all arm/disarm operations. You must manually update the Docker container's configuration with your alarm code.
+
+### Setting Your Alarm Code
+
+After starting the Docker container, update the alarm code with this command:
+
+```bash
+# Replace YOUR_ALARM_CODE with your actual 4-digit alarm code (e.g., 1234)
+docker exec hubitatalarm sed -i 's/"alarmpassword": "1234"/"alarmpassword": "YOUR_ALARM_CODE"/' /opt/Alarm/config/config.json
+docker restart hubitatalarm
+```
+
+### Setting Alarm Type (DSC vs Honeywell)
+
+If you're using a DSC panel with IT-100 module:
+
+```bash
+# Set alarm type to DSC
+docker exec hubitatalarm sed -i 's/"alarmType": "Honeywell"/"alarmType": "DSC"/' /opt/Alarm/config/config.json
+docker exec hubitatalarm sed -i 's/"connectionType": "Envisalink"/"connectionType": "DSC-IT100"/' /opt/Alarm/config/config.json
+docker restart hubitatalarm
+```
+
+### Why This is Necessary
+
+The Docker container's architecture reads the alarm code from its persistent configuration file rather than accepting it dynamically via WebSocket messages. While Home Assistant stores your alarm code in its configuration, you must also configure it in the Docker container for arm/disarm operations to work correctly.
+
+**Symptoms of incorrect alarm code:**
+- Arm commands work, but disarm fails
+- Docker logs show "Invalid code" error (code 670)
+- Panel remains armed after clicking disarm in Home Assistant
+
+**To verify your configuration:**
+```bash
+docker exec hubitatalarm cat /opt/Alarm/config/config.json | grep alarmpassword
+```
