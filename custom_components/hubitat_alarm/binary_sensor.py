@@ -1,0 +1,103 @@
+"""Binary sensor platform for Hubitat Alarm zones."""
+import logging
+
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+)
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
+from .const import DOMAIN, CONF_NUM_ZONES, ZONE_STATE_OPEN, ZONE_STATE_ALARM
+from .coordinator import HubitatAlarmCoordinator
+
+_LOGGER = logging.getLogger(__name__)
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up Hubitat Alarm zone sensors from a config entry."""
+    coordinator: HubitatAlarmCoordinator = hass.data[DOMAIN][entry.entry_id]
+    
+    num_zones = entry.data.get(CONF_NUM_ZONES, 8)
+    
+    entities = [
+        HubitatAlarmZoneSensor(coordinator, entry, zone_num)
+        for zone_num in range(1, num_zones + 1)
+    ]
+    
+    async_add_entities(entities, True)
+
+
+class HubitatAlarmZoneSensor(BinarySensorEntity):
+    """Representation of a Hubitat Alarm Zone."""
+
+    _attr_device_class = BinarySensorDeviceClass.DOOR
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator: HubitatAlarmCoordinator,
+        entry: ConfigEntry,
+        zone_num: int,
+    ) -> None:
+        """Initialize the zone sensor."""
+        self.coordinator = coordinator
+        self._entry = entry
+        self._zone_num = zone_num
+        self._zone_id = str(zone_num).zfill(3)  # Format as "001", "002", etc.
+        
+        self._attr_unique_id = f"{entry.entry_id}_zone_{self._zone_id}"
+        self._attr_name = f"Zone {zone_num}"
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": "Hubitat Alarm Panel",
+            "manufacturer": "Hubitat Alarm",
+            "model": entry.data.get("alarm_type", "Unknown"),
+        }
+
+    async def async_added_to_hass(self) -> None:
+        """Handle entity added to hass."""
+        self.async_on_remove(
+            self.coordinator.async_add_listener(self._handle_coordinator_update)
+        )
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        # Only update if this zone's data changed
+        zone_state = self.coordinator.get_zone_state(self._zone_id)
+        if zone_state:
+            self.async_write_ha_state()
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return self.coordinator.is_connected
+
+    @property
+    def is_on(self) -> bool | None:
+        """Return True if the zone is open/triggered."""
+        zone_state = self.coordinator.get_zone_state(self._zone_id)
+        if not zone_state:
+            return False
+        
+        state = zone_state.get("state")
+        return state in [ZONE_STATE_OPEN, ZONE_STATE_ALARM]
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        """Return extra attributes."""
+        zone_state = self.coordinator.get_zone_state(self._zone_id)
+        if not zone_state:
+            return {}
+        
+        return {
+            "zone": zone_state.get("zone"),
+            "description": zone_state.get("description"),
+            "raw_state": zone_state.get("state"),
+        }

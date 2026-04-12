@@ -1,0 +1,35 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure Hubitat Alarm",
+        "description": "Enter the connection details for your Hubitat Alarm Docker container running on your Raspberry Pi or server.",
+        "data": {
+          "host": "Host (IP Address)",
+          "port": "Port",
+          "alarm_code": "Alarm Security Code",
+          "connection_type": "Connection Type",
+          "alarm_type": "Alarm Type",
+          "num_zones": "Number of Zones"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to Hubitat Alarm server. Please check the host and port.",
+      "unknown": "Unexpected error occurred"
+    },
+    "abort": {
+      "already_configured": "This Hubitat Alarm server is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Hubitat Alarm Options",
+        "data": {
+          "num_zones": "Number of Zones"
+        }
+      }
+    }
+  }
+}

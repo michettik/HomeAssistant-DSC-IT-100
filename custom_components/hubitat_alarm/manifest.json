@@ -1,0 +1,12 @@
+{
+  "domain": "hubitat_alarm",
+  "name": "Hubitat Alarm",
+  "codeowners": ["@yourusername"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/yourusername/hubitat_alarm_hacs",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/yourusername/hubitat_alarm_hacs/issues",
+  "requirements": ["websockets==12.0"],
+  "version": "1.0.0"
+}
