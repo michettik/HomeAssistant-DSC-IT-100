@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 """Config flow for Hubitat Alarm integration."""
 import logging
 from typing import Any
