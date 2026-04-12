@@ -56,7 +56,7 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
     def is_connected(self) -> bool:
         """Return True if connected."""
         if self.connection_type == CONNECTION_WSS:
-            return self.websocket is not None and not self.websocket.closed
+            return self.websocket is not None and self.websocket.open
         return True  # API mode doesn't maintain persistent connection
 
     async def async_connect(self) -> None:
