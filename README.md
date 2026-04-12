@@ -213,28 +213,7 @@ MIT License
 
 ## Important: Alarm Code Configuration
 
-**Critical Setup Step:** The HubitatAlarm Docker container stores the alarm code in its internal `config.json` file. This code is used for all arm/disarm operations. You must manually update the Docker container's configuration with your alarm code.
-
-### Setting Your Alarm Code
-
-After starting the Docker container, update the alarm code with this command:
-
-```bash
-# Replace YOUR_ALARM_CODE with your actual 4-digit alarm code (e.g., 1234)
-docker exec hubitatalarm sed -i 's/"alarmpassword": "1234"/"alarmpassword": "YOUR_ALARM_CODE"/' /opt/Alarm/config/config.json
-docker restart hubitatalarm
-```
-
-### Setting Alarm Type (DSC vs Honeywell)
-
-If you're using a DSC panel with IT-100 module:
-
-```bash
-# Set alarm type to DSC
-docker exec hubitatalarm sed -i 's/"alarmType": "Honeywell"/"alarmType": "DSC"/' /opt/Alarm/config/config.json
-docker exec hubitatalarm sed -i 's/"connectionType": "Envisalink"/"connectionType": "DSC-IT100"/' /opt/Alarm/config/config.json
-docker restart hubitatalarm
-```
+**Critical Setup Step:** The HubitatAlarm Docker container stores the alarm code in its internal `config.json` file. This code is used for all arm/disarm operations. See the [Docker Container Setup](#docker-container-setup) section above for configuration commands.
 
 ### Why This is Necessary
 
