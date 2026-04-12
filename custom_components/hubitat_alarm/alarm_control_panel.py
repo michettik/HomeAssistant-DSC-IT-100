@@ -3,7 +3,6 @@ from __future__ import annotations
 """Alarm control panel platform for Hubitat Alarm."""
 import logging
 
-from __future__ import annotations
 from homeassistant.components.alarm_control_panel import (
     AlarmControlPanelEntity,
     AlarmControlPanelEntityFeature,

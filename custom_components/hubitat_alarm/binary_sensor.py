@@ -3,7 +3,6 @@ from __future__ import annotations
 """Binary sensor platform for Hubitat Alarm zones."""
 import logging
 
-from __future__ import annotations
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,

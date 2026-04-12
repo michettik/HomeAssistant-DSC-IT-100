@@ -3,8 +3,6 @@ from __future__ import annotations
 """Config flow for Hubitat Alarm integration."""
 import logging
 from typing import Any
-from __future__ import annotations
-
 import voluptuous as vol
 import aiohttp
 import async_timeout

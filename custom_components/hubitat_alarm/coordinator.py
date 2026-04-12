@@ -3,7 +3,6 @@ from __future__ import annotations
 """Coordinator for Hubitat Alarm integration."""
 import asyncio
 import json
-from __future__ import annotations
 import logging
 from typing import Any
 
