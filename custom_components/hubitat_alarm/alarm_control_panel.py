@@ -8,13 +8,7 @@ from homeassistant.components.alarm_control_panel import (
     AlarmControlPanelEntityFeature,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (
-    STATE_ALARM_ARMED_AWAY,
-    STATE_ALARM_ARMED_HOME,
-    STATE_ALARM_ARMED_NIGHT,
-    STATE_ALARM_DISARMED,
-    STATE_ALARM_TRIGGERED,
-)
+from homeassistant.components.alarm_control_panel import AlarmControlPanelState
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -37,11 +31,11 @@ _LOGGER = logging.getLogger(__name__)
 
 # Map HubitatAlarm states to HA states
 STATE_MAP = {
-    ALARM_STATE_ARMED_AWAY: STATE_ALARM_ARMED_AWAY,
-    ALARM_STATE_ARMED_HOME: STATE_ALARM_ARMED_HOME,
-    ALARM_STATE_ARMED_NIGHT: STATE_ALARM_ARMED_NIGHT,
-    ALARM_STATE_DISARMED: STATE_ALARM_DISARMED,
-    ALARM_STATE_TRIGGERED: STATE_ALARM_TRIGGERED,
+    ALARM_STATE_ARMED_AWAY: AlarmControlPanelState.ARMED_AWAY,
+    ALARM_STATE_ARMED_HOME: AlarmControlPanelState.ARMED_HOME,
+    ALARM_STATE_ARMED_NIGHT: AlarmControlPanelState.ARMED_NIGHT,
+    ALARM_STATE_DISARMED: AlarmControlPanelState.DISARMED,
+    ALARM_STATE_TRIGGERED: AlarmControlPanelState.TRIGGERED,
 }
 
 
@@ -107,7 +101,7 @@ class HubitatAlarmPanel(AlarmControlPanelEntity):
             return None
         
         alarm_state = partition_state.get("hsmstate") or partition_state.get("state")
-        return STATE_MAP.get(alarm_state, STATE_ALARM_DISARMED)
+        return STATE_MAP.get(alarm_state, AlarmControlPanelState.DISARMED)
 
     @property
     def extra_state_attributes(self) -> dict:
