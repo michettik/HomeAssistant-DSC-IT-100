@@ -43,7 +43,7 @@ async def validate_connection(hass: HomeAssistant, host: str, port: int) -> dict
                         if "Hubitat Alarm Running" in text:
                             return {"title": f"Hubitat Alarm ({host})"}
                     raise ConnectionError("Invalid response from server")
-    except async_timeout.TimeoutError as err:
+    except asyncio.TimeoutError as err:
         raise ConnectionError("Connection timeout") from err
     except aiohttp.ClientError as err:
         raise ConnectionError(f"Connection failed: {err}") from err
