@@ -4,6 +4,27 @@
 
 Home Assistant integration for Hubitat Alarm - connects to DSC and Honeywell alarm systems via the HubitatAlarm Docker container.
 
+## Credits & Attribution
+
+This integration is a Home Assistant port/adaptation of the [HubitatAlarm](https://github.com/Welasco/HubitatAlarm) project by **Victor Santana** (@Welasco).
+
+**Original Project:**
+- Repository: https://github.com/Welasco/HubitatAlarm
+- Author: Victor Santana
+- License: Original project license applies to the Docker container and protocol implementation
+
+This HACS integration provides a Home Assistant-native interface to connect to the existing HubitatAlarm Docker container, which handles all communication with DSC and Honeywell alarm panels. All credit for the alarm protocol implementation, Docker container, and original architecture goes to Victor Santana.
+
+**What this integration does:**
+- Provides Home Assistant entities (alarm panel + zone sensors)
+- Implements WebSocket/API client to communicate with HubitatAlarm Docker container
+- Translates between HubitatAlarm protocol and Home Assistant entity states
+
+**What this integration does NOT do:**
+- Does not replace or modify the HubitatAlarm Docker container
+- Does not implement alarm panel protocols (that's all in Victor's original work)
+- Requires the original HubitatAlarm Docker container to function
+
 ## Features
 
 - 🔐 **Alarm Control Panel** - Arm/Disarm in Away, Home, and Night modes
@@ -164,10 +185,22 @@ logger:
 - [GitHub Issues](https://github.com/yourusername/hubitat_alarm_hacs/issues)
 - [HubitatAlarm Docker Container](https://github.com/Welasco/HubitatAlarm)
 
-## Credits
+## Acknowledgments
 
-Based on the [HubitatAlarm](https://github.com/Welasco/HubitatAlarm) project by Victor Santana.
+Huge thanks to **Victor Santana** (@Welasco) for creating and maintaining the HubitatAlarm project. Without his work on the alarm panel protocols, Docker container, and server implementation, this Home Assistant integration would not be possible.
+
+If you find this integration useful, please:
+- ⭐ Star the original [HubitatAlarm repository](https://github.com/Welasco/HubitatAlarm)
+- Support Victor's work
+- Consider contributing to the Docker container project
+
+## Related Projects
+
+- [HubitatAlarm](https://github.com/Welasco/HubitatAlarm) - The original project and required Docker container
+- [Hubitat Elevation](https://hubitat.com/) - The original target platform
 
 ## License
 
 MIT License
+
+**Note:** This integration is independent community software. The HubitatAlarm Docker container and its protocols are the work of Victor Santana and subject to their original licensing.

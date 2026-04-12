@@ -1,6 +1,10 @@
 MIT License
 
-Copyright (c) 2026 
+Copyright (c) 2026 Home Assistant Hubitat Alarm Integration Contributors
+
+Note: This license applies only to the Home Assistant integration code.
+The HubitatAlarm Docker container and alarm protocols are the work of 
+Victor Santana (@Welasco) - https://github.com/Welasco/HubitatAlarm
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
