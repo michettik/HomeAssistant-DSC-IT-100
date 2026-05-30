@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-"""Coordinator for Hubitat Alarm integration."""
+"""Coordinator for HomeAssistant Alarm integration."""
 import asyncio
 import json
 import logging
@@ -29,7 +29,7 @@ RECONNECT_DELAY = 10  # seconds
 
 
 class HubitatAlarmCoordinator(DataUpdateCoordinator):
-    """Coordinator to manage Hubitat Alarm connection."""
+    """Coordinator to manage HomeAssistant Alarm connection."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         """Initialize coordinator."""
@@ -60,65 +60,12 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
         return True  # API mode doesn't maintain persistent connection
 
     async def async_connect(self) -> None:
-        """Connect to the Hubitat Alarm server."""
-        # Sync alarm code to Docker container
-        await self.async_sync_alarm_config()
-        
+        """Connect to the HomeAssistant Alarm server."""
         if self.connection_type == CONNECTION_WSS:
             await self._async_connect_websocket()
         else:
             # API mode - just verify connection
             await self._async_verify_api_connection()
-
-    async def async_sync_alarm_config(self) -> None:
-        """Sync alarm configuration to Docker container."""
-        config_url = f"http://{self.host}:{self.port}/config"
-        
-        try:
-            async with aiohttp.ClientSession() as session:
-                # First, GET the current config
-                async with session.get(config_url) as response:
-                    if response.status == 200:
-                        current_config = await response.json()
-                        _LOGGER.debug("Retrieved current config from Docker")
-                    else:
-                        _LOGGER.warning("Failed to get current config: HTTP %s, will use defaults", response.status)
-                        # Use default config structure
-                        current_config = {
-                            "alarmpassword": self.alarm_code,
-                            "SHM": True,
-                            "dsc_it100": {
-                                "linuxSerialUSBtty": "/dev/ttyUSB0",
-                                "baudRate": 9600
-                            },
-                            "envisalink": {
-                                "ip": "",
-                                "port": "",
-                                "password": ""
-                            },
-                            "alarmType": "DSC",
-                            "connectionType": "DSC-IT100",
-                            "communicationType": "WSS",
-                            "panelConfig": {
-                                "type": "discover",
-                                "zones": []
-                            }
-                        }
-                
-                # Update alarm password and ensure correct alarm type
-                current_config["alarmpassword"] = self.alarm_code
-                current_config["alarmType"] = "DSC"
-                current_config["connectionType"] = "DSC-IT100"
-                current_config["communicationType"] = "WSS"
-                
-                # POST the updated config back
-                async with session.post(config_url, json=current_config) as response:
-                    if response.status == 200:
-                        _LOGGER.info("Successfully synced alarm code (%s) to Docker container", self.alarm_code)
-                    else:
-                        _LOGGER.warning("Failed to sync alarm config: HTTP %s", response.status)
-        except Exception as err:
-            _LOGGER.error("Failed to sync alarm config to Docker: %s", err)
 
     async def _async_connect_websocket(self) -> None:
         """Connect via WebSocket."""
@@ -126,7 +73,7 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
         
         try:
             self.websocket = await websockets.connect(url, ping_interval=60)
-            _LOGGER.info("Connected to Hubitat Alarm WebSocket at %s", url)
+            _LOGGER.info("Connected to HomeAssistant Alarm WebSocket at %s", url)
             
             # Start listening for messages
             if self._listen_task is None or self._listen_task.done():
@@ -143,11 +90,11 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
 
     async def _async_listen_websocket(self) -> None:
         """Listen for WebSocket messages."""
-        _LOGGER.info("WebSocket listener started")
+        _LOGGER.debug("WebSocket listener started")
         try:
             async for message in self.websocket:
                 try:
-                    _LOGGER.info("Received WebSocket message: %s", message)
+                    _LOGGER.debug("Received WebSocket message: %s", message)
                     data = json.loads(message)
                     await self._async_handle_message(data)
                 except json.JSONDecodeError as err:
@@ -156,9 +103,11 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
                     _LOGGER.exception("Error handling message: %s", err)
         except websockets.ConnectionClosed:
             _LOGGER.warning("WebSocket connection closed")
+            self.websocket = None
             self._schedule_reconnect()
         except Exception as err:
             _LOGGER.exception("WebSocket listener error: %s", err)
+            self.websocket = None
             self._schedule_reconnect()
 
     async def _async_verify_api_connection(self) -> None:
@@ -170,10 +119,11 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
                 if response.status != 200:
                     raise ConnectionError(f"HTTP {response.status}")
                 text = await response.text()
-                if "Hubitat Alarm Running" not in text:
+                # Accept both old and new server versions
+                if "Alarm Running" not in text:
                     raise ConnectionError("Invalid response from server")
         
-        _LOGGER.info("Verified API connection to Hubitat Alarm at %s:%s", self.host, self.port)
+        _LOGGER.info("Verified API connection to HomeAssistant Alarm at %s:%s", self.host, self.port)
 
     def _schedule_reconnect(self) -> None:
         """Schedule a reconnection attempt."""
@@ -183,11 +133,13 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
     async def _async_reconnect(self) -> None:
         """Reconnect after a delay."""
         await asyncio.sleep(RECONNECT_DELAY)
-        _LOGGER.info("Attempting to reconnect to Hubitat Alarm...")
+        _LOGGER.info("Attempting to reconnect to HomeAssistant Alarm...")
         try:
             await self._async_connect_websocket()
         except Exception as err:
             _LOGGER.error("Reconnection failed: %s", err)
+            # Keep trying
+            self._schedule_reconnect()
 
     async def async_disconnect(self) -> None:
         """Disconnect from the server."""
@@ -204,13 +156,13 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
     async def _async_handle_message(self, data: dict[str, Any]) -> None:
         """Handle incoming message from alarm system."""
         event_type = data.get("type")
-        _LOGGER.info("Handling message - type: %s, data: %s", event_type, data)
+        _LOGGER.debug("Handling message - type: %s, data: %s", event_type, data)
         
         if event_type == EVENT_TYPE_PARTITION:
             # Update partition state
             partition = data.get("partition", "1")
             self.partition_data[partition] = data
-            _LOGGER.info("Updated partition %s state: %s", partition, data)
+            _LOGGER.debug("Updated partition %s state: %s", partition, data)
             
         elif event_type == EVENT_TYPE_ZONE:
             # Update zone state
@@ -220,7 +172,6 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
                 _LOGGER.debug("Zone %s update: %s", zone, data)
         
         # Notify all listeners
-        _LOGGER.info("Notifying listeners of update")
         self.async_set_updated_data(data)
 
     async def async_send_command(self, command: str, code: str | None = None) -> None:
@@ -242,7 +193,7 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
         message = json.dumps(message_data)
         try:
             await self.websocket.send(message)
-            _LOGGER.info("Sent command via WebSocket: %s (message: %s)", command, message)
+            _LOGGER.debug("Sent command via WebSocket: %s", command)
         except Exception as err:
             _LOGGER.error("Failed to send WebSocket command: %s", err)
             self._schedule_reconnect()
@@ -258,7 +209,7 @@ class HubitatAlarmCoordinator(DataUpdateCoordinator):
                 async with session.get(url) as response:
                     if response.status != 200:
                         _LOGGER.error("API command failed with status %s", response.status)
-                    _LOGGER.debug("Sent command via API: %s", url)
+                    _LOGGER.debug("Sent command via API: %s", command)
         except Exception as err:
             _LOGGER.error("Failed to send API command: %s", err)
 

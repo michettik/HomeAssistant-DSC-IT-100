@@ -1,4 +1,4 @@
-"""Constants for the Hubitat Alarm integration."""
+"""Constants for the HomeAssistant Alarm integration."""
 
 DOMAIN = "hubitat_alarm"
 
@@ -11,7 +11,7 @@ CONF_CONNECTION_TYPE = "connection_type"
 CONF_NUM_ZONES = "num_zones"
 
 # Defaults
-DEFAULT_PORT = 3000
+DEFAULT_PORT = 3001
 DEFAULT_CONNECTION_TYPE = "wss"
 DEFAULT_ALARM_TYPE = "DSC"
 
