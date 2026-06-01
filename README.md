@@ -1,21 +1,24 @@
-# Hubitat Alarm for Home Assistant
+# HomeAssistant Alarm Integration for Home Assistant
+
+> **Special thanks to my colleague [Victor Santana (Welasco)](https://github.com/Welasco)** for creating the original [HubitatAlarm](https://github.com/Welasco/HubitatAlarm) project. This integration connects to a forked version of his excellent work, adapted for Home Assistant.
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
-Home Assistant integration for Hubitat Alarm - connects to DSC and Honeywell alarm systems via the HubitatAlarm Docker container.
+Home Assistant integration for DSC and Honeywell alarm systems via the [HomeAssistant Alarm](https://github.com/michettik/HubitatAlarm) Docker container.
 
 ## Features
 
-- 🔐 **Alarm Control Panel** - Arm/Disarm in Away, Home, and Night modes
-- 🚪 **Zone Sensors** - Binary sensors for all alarm zones
-- 🔌 **WebSocket or API** - Choose between real-time WebSocket or polling API
-- 🏠 **Local Push** - No cloud required, all local communication
-- 🔄 **Auto-Reconnect** - Automatic reconnection if connection is lost
-- 🎯 **HACS Ready** - Easy installation and updates via HACS
+- **Alarm Control Panel** - Arm/Disarm in Away, Home, and Night modes
+- **Zone Sensors** - Binary sensors for all alarm zones
+- **WebSocket or API** - Choose between real-time WebSocket or polling API
+- **Local Push** - No cloud required, all local communication
+- **Auto-Reconnect** - Automatic reconnection if connection is lost
+- **Dynamic Alarm Code** - Pass alarm code via WebSocket (no hardcoding required)
+- **HACS Ready** - Easy installation and updates via HACS
 
 ## Prerequisites
 
-You need the [HubitatAlarm Docker container](https://github.com/Welasco/HubitatAlarm) running on a server (e.g., Raspberry Pi) that has physical access to your alarm panel via:
+You need the [HomeAssistant Alarm Docker container](https://github.com/michettik/HubitatAlarm) running on a server (e.g., Raspberry Pi) that has physical access to your alarm panel via:
 - DSC IT-100 (Serial/USB)
 - Envisalink (Network)
 
@@ -26,10 +29,10 @@ You need the [HubitatAlarm Docker container](https://github.com/Welasco/HubitatA
 1. Open HACS in Home Assistant
 2. Click the three dots in the top right corner
 3. Select "Custom repositories"
-4. Add this repository URL: `https://github.com/yourusername/hubitat_alarm_hacs`
+4. Add this repository URL: `https://github.com/michettik/HomeAssistant-DSC-IT-100`
 5. Select category: "Integration"
 6. Click "Add"
-7. Click "Install" on the Hubitat Alarm card
+7. Click "Install" on the HomeAssistant Alarm card
 8. Restart Home Assistant
 
 ### Manual Installation
@@ -44,31 +47,31 @@ You need the [HubitatAlarm Docker container](https://github.com/Welasco/HubitatA
 3. Search for "Hubitat Alarm"
 4. Enter your configuration:
    - **Host**: IP address of your Docker container (e.g., `192.168.1.100`)
-   - **Port**: Port number (default: `3000`)
-   - **~~Alarm Security Code~~**: ~~Your alarm panel code~~ (See Docker Container Setup below for manual configuration)
+   - **Port**: Port number (default: `3001`)
+   - **Alarm Security Code**: Your alarm panel code
    - **Connection Type**: Choose `wss` (WebSocket - recommended) or `api`
    - **Alarm Type**: Choose `DSC` or `Honeywell`
    - **Number of Zones**: How many zones to create (1-64)
 
 ## Docker Container Setup
 
-Make sure you have the HubitatAlarm Docker container running:
+Make sure you have the HomeAssistant Alarm Docker container running:
 
 ```bash
 # For DSC IT-100
-docker run --name=hubitatalarm -d -p 3000:3000 \
+docker run --name=homeassistant-alarm -d -p 3001:3001 \
   -v /path/to/config:/opt/Alarm/config \
   --device=/dev/ttyUSB0 \
-  -e TZ=America/Chicago \
+  -e TZ=America/Edmonton \
   --restart always \
-  welasco/hubitatalarm:latest
+  michettik/homeassistant-alarm:latest
 
 # For Envisalink
-docker run --name=hubitatalarm -d -p 3000:3000 \
+docker run --name=homeassistant-alarm -d -p 3001:3001 \
   -v /path/to/config:/opt/Alarm/config \
-  -e TZ=America/Chicago \
+  -e TZ=America/Edmonton \
   --restart always \
-  welasco/hubitatalarm:latest
+  michettik/homeassistant-alarm:latest
 ```
 
 ## Entities Created
@@ -133,10 +136,10 @@ states:
 ## Troubleshooting
 
 ### Connection Issues
-- Verify the Docker container is running: `docker ps | grep hubitatalarm`
-- Check Docker logs: `docker logs hubitatalarm`
-- Test connectivity: `curl http://YOUR_IP:3000/`
-- Ensure port 3000 is accessible from Home Assistant
+- Verify the Docker container is running: `docker ps | grep homeassistant-alarm`
+- Check Docker logs: `docker logs homeassistant-alarm`
+- Test connectivity: `curl http://YOUR_IP:3001/`
+- Ensure port 3001 is accessible from Home Assistant
 
 ### WebSocket Issues
 - Try switching to API mode in the integration options
@@ -161,12 +164,21 @@ logger:
 
 ## Support
 
-- [GitHub Issues](https://github.com/yourusername/hubitat_alarm_hacs/issues)
-- [HubitatAlarm Docker Container](https://github.com/Welasco/HubitatAlarm)
+- [GitHub Issues](https://github.com/michettik/HomeAssistant-DSC-IT-100/issues)
+- [HomeAssistant Alarm Docker Container](https://github.com/michettik/HubitatAlarm)
 
-## Credits
+## Credits & Acknowledgments
 
-Based on the [HubitatAlarm](https://github.com/Welasco/HubitatAlarm) project by Victor Santana.
+Special thanks to my colleague **[Victor Santana (Welasco)](https://github.com/Welasco)** for creating the original **[HubitatAlarm](https://github.com/Welasco/HubitatAlarm)** project.
+
+Victor's original work provides:
+- Complete DSC IT-100 and Envisalink serial/network integration
+- Honeywell alarm system support
+- WebSocket and API communication layer
+- Node.js bridge architecture
+- Docker containerization
+
+This Home Assistant integration builds upon his foundation to provide seamless smart home integration.
 
 ## License
 
